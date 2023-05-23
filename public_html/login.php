@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Start a session and store user information
             session_start();
             $_SESSION['user_id'] = $user['id'];
-            
             header('Location: index.php');
             exit();
         }
