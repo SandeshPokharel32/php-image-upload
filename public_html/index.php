@@ -1,76 +1,83 @@
 <?php
 require_once './auth.php';
-
-if (!isUserLoggedIn()) {
+session_start();
+if (!$_SESSION['user_id']) {
     header("Location: login.php");
     exit();  
 }
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Perform login validation
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    if (authenticateUser($username, $password)) {
-        loginUser($username);
-        exit();
-    } else {
-        echo "Invalid username or password!";
-    }
-}else{
-    $username = getCurrentUsername();
+$host = 'mysql';
+$user = 'root';
+$pass = 'rootpassword';
+$conn = new mysqli($host, $user, $pass, 'dbtest');
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql = "SELECT f.*, u.username FROM files f
+        JOIN users u ON f.users_id = u.id";
+$result = mysqli_query($conn, $sql);
+if($result){
+    $files = mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sliding Photo Gallery</title>
-  <link rel="Stylesheet" href="./assets/style.css"></link>
+    <title>Files List</title>
+    <style>
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .card img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .card h4 {
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            margin: 0;
+            color: #888;
+        }
+        
+        .no-files {
+            text-align: center;
+            color: #888;
+        }
+    </style>
+    <link rel="Stylesheet" href="./assets/style.css"></link>
 </head>
-
 <body>
     <?php include 'nav.php'; ?>
-  <div class="container">
-     <h2>Sliding Photo Gallery</h2>
-    <div class="gallery">
-        <?php
-            $host = 'mysql';
-            $user = 'root';
-            $pass = 'rootpassword';
-            $conn = new mysqli($host, $user, $pass, 'dbtest');
-            
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            } 
-            // SQL query to fetch the file information
-            $sql = "SELECT name, type, size FROM files";
-            $result = $conn->query($sql);
-            if ($result->num_rows > 0) {
-                // Output data of each row
-                while ($row = $result->fetch_assoc()) {
-                    $fileName = $row["name"];
-                    $fileType = $row["type"];
-                    $fileData = $row["data"];
-                    // Generate the base64 image source
-                    $base64Image = 'data:' . $fileType . ';base64,' . base64_encode($fileData);
-                    echo  "<img src='".$fileName."' alt='".$fileName."'><br>";
-                }
-            } else {
-                echo "No files found in the database.";
-            }
-            $conn->close();
-        ?>
-     
-      <img src="photo2.jpg" alt="Photo 2">
-      <img src="photo3.jpg" alt="Photo 3">
-    </div>
-
-    <div class="gallery-controls">
-      <button onclick="prevPhoto()">Previous</button>
-      <button onclick="nextPhoto()">Next</button>
-    </div>
-  </div>
-  <script src="./assets/script.js"></script>
-
+    <h2>Files List</h2>
+   <div>
+   <?php if (!empty($files)) { ?>
+        <?php foreach ($files as $file) { ?>
+            <div class="card">
+                <img src="<?php echo $file['name']; ?>" alt="File Image">
+                <h4><?php echo $file['name']; ?></h4>
+                <p>Uploaded by: <?php echo $file['username']; ?></p>
+                <p>Date Uploaded: <?php echo $file['date_uploaded']; ?></p>
+            </div>
+        <?php } ?>
+    <?php } else { ?>
+        <p class="no-files">No files found.</p>
+    <?php } ?>
+   </div>
 </body>
 </html>
