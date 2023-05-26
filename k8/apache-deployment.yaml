@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: apache
+  name: apache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: apache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/php-image-upload-backend: "true"
+        io.kompose.network/php-image-upload-frontend: "true"
+        io.kompose.service: apache
+    spec:
+      containers:
+        - image: apache
+          name: apache
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: apache-claim0
+      restartPolicy: Always
+      volumes:
+        - name: apache-claim0
+          persistentVolumeClaim:
+            claimName: apache-claim0
+status: {}

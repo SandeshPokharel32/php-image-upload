@@ -20,7 +20,11 @@ if ($conn->query("DROP TABLE IF EXISTS files, users") === true) {
 $userSchema = "CREATE TABLE users (
                 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 username VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL
+                password VARCHAR(255) NOT NULL,
+                background LONGBLOB,
+                hobbies VARCHAR(255),
+                profile LONGBLOB,
+                description VARCHAR(255)
             )";
 
 // Execute the SQL query to create the users table

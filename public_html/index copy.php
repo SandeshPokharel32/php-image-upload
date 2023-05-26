@@ -13,7 +13,8 @@ $conn = new mysqli($host, $user, $pass, 'dbtest');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$sql = "SELECT * FROM users";
+$sql = "SELECT f.*, u.username FROM files f
+        JOIN users u ON f.users_id = u.id";
 $result = mysqli_query($conn, $sql);
 if($result){
     $files = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -68,7 +69,7 @@ if($result){
    <?php if (!empty($files)) { ?>
         <?php foreach ($files as $file) { ?>
             <div class="card">
-                <img src="data:image/jpeg;base64,<?php echo base64_encode($file['profile']); ?>" alt="File Image">
+                <img src="<?php echo $file['name']; ?>" alt="File Image">
                 <h4><?php echo $file['name']; ?></h4>
                 <p>Uploaded by: <?php echo $file['username']; ?></p>
                 <p>Date Uploaded: <?php echo $file['date_uploaded']; ?></p>

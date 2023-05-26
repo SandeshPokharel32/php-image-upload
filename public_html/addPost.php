@@ -47,6 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($stmt->execute()) {
             echo "File uploaded and saved to the database successfully.";
+            ?>
+     <script> location.replace("index.php"); </script>
+
+<?php
+            exit();
         } else {
             echo "Error: " . $stmt->error;
         }
